@@ -5,7 +5,7 @@ import (
 	"log"
 	"context"
 
-	"github.com/thearyanahmed/tinkering-with-grpc/greet/greetpb"
+	"github.com/thearyanahmed/tinkering-with-grpc/sum/sumpb"
 	"google.golang.org/grpc"
 )
 
@@ -20,26 +20,26 @@ func main() {
 
 	defer cc.Close()
 
-	c := greetpb.NewGreetServiceClient(cc)
+	c := sumpb.NewSumServiceClient(cc)
 
 	callUniary(c)
 }
 
-func callUniary(c greetpb.GreetServiceClient) {
+func callUniary(c sumpb.SumServiceClient) {
 
 	fmt.Println("Calling unary")
 
-	req := &greetpb.GreetRequest{
-		Greeting: &greetpb.Greeting {
-			FirstName: "Muhaimenul Islam",
-			LastName: "Ove",
+	req := &sumpb.SumRequest{
+		Sum: &sumpb.Sum {
+			A: 123,
+			B: 12,
 		},
 	}
 
-	res, err := c.Greet(context.Background(),req)
+	res, err := c.Sum(context.Background(),req)
 
 	if err != nil {
-		log.Fatalf("Error calling greet. %v",err)
+		log.Fatalf("Error calling sum. %v",err)
 	}
 
 	fmt.Printf("Response : %v",res.Result)
