@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/thearyanahmed/tinkering-with-grpc/greet/greetpb"
+	"google.golang.org/grpc"
 	"log"
 	"net"
-	"context"
-
-	"google.golang.org/grpc"
-	"github.com/thearyanahmed/tinkering-with-grpc/greet/greetpb"
+	"strconv"
 )
 
 type server struct{}
@@ -47,4 +47,21 @@ func (server *server) Greet(ctx context.Context, req *greetpb.GreetRequest) (*gr
 	}
 
 	return res, nil
+}
+
+func (server *server) GreetServerStream(req *greetpb.GreetServerStreamRequest, stream greetpb.GreetService_GreetServerStreamServer) error {
+	fmt.Println("Server streaming was called.")
+
+	firstName := req.GetGreeting().GetFirstName()
+
+	for i := 0; i < 1000; i++ {
+		result := "Hello " + firstName + ". We are streaming data in realtime : " + strconv.Itoa(i)
+		res := &greetpb.GreetServerStreamResponse{
+			Result: result,
+		}
+
+		stream.Send(res)
+	}
+
+	return nil
 }

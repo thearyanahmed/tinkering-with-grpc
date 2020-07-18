@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"context"
 
@@ -22,7 +23,9 @@ func main() {
 
 	c := greetpb.NewGreetServiceClient(cc)
 
-	callUniary(c)
+	//callUniary(c)
+
+	callServerStreaming(c)
 }
 
 func callUniary(c greetpb.GreetServiceClient) {
@@ -43,4 +46,38 @@ func callUniary(c greetpb.GreetServiceClient) {
 	}
 
 	fmt.Printf("Response : %v",res.Result)
+}
+
+func callServerStreaming (c greetpb.GreetServiceClient) {
+	fmt.Println("Calling server streaming from client")
+
+	req := &greetpb.GreetServerStreamRequest{
+		Greeting: &greetpb.Greeting{
+			FirstName: "User",
+			LastName: "Banana",
+		},
+	}
+
+	responesStream, err := c.GreetServerStream(context.Background(),req)
+
+	if err != nil {
+		log.Printf("Error in response from server streamin: %v \n", err)
+		return
+	}
+
+	for {
+		message, err := responesStream.Recv()
+
+		if err == io.EOF {
+			fmt.Println("End of file (streaming)")
+			break
+		}
+
+		if err != nil {
+			log.Fatalf("error : %v ", err)
+			return
+		}
+
+		fmt.Println("Message " ,message.GetResult())
+	}
 }
